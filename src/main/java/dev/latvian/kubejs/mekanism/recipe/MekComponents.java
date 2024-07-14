@@ -184,7 +184,8 @@ public interface MekComponents {
 		@Override
 		public void readFromMap(RecipeJS recipe, RecipeComponentValue<ChemicalStackIngredient<?, ?>> cv, Map<?, ?> map) {
 			ChemicalType chemicalType = ChemicalType.fromString(map.get(JsonConstants.CHEMICAL_TYPE).toString());
-			cv.value = IngredientCreatorAccess.getCreatorForType(chemicalType).deserialize(JsonIO.of(map.get(cv.key.name)));
+            assert chemicalType != null;
+            cv.value = IngredientCreatorAccess.getCreatorForType(chemicalType).deserialize(JsonIO.of(map.get(cv.key.name)));
 		}
 	};
 
@@ -242,7 +243,6 @@ public interface MekComponents {
 	RecipeComponent<ChemicalStackIngredient.InfusionStackIngredient> INFUSE_TYPE_INPUT = new ChemicalWrapper.InputComponent<>(ChemicalWrapper.INFUSE_TYPE);
 	RecipeComponent<ChemicalStackIngredient.PigmentStackIngredient> PIGMENT_INPUT = new ChemicalWrapper.InputComponent<>(ChemicalWrapper.PIGMENT);
 	RecipeComponent<ChemicalStackIngredient.SlurryStackIngredient> SLURRY_INPUT = new ChemicalWrapper.InputComponent<>(ChemicalWrapper.SLURRY);
-
 	RecipeComponent<GasStack> GAS_OUTPUT = new ChemicalWrapper.OutputComponent<>(ChemicalWrapper.GAS);
 	RecipeComponent<InfusionStack> INFUSE_TYPE_OUTPUT = new ChemicalWrapper.OutputComponent<>(ChemicalWrapper.INFUSE_TYPE);
 	RecipeComponent<PigmentStack> PIGMENT_OUTPUT = new ChemicalWrapper.OutputComponent<>(ChemicalWrapper.PIGMENT);

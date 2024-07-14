@@ -24,12 +24,15 @@ import mekanism.api.chemical.slurry.SlurryStack;
 import mekanism.api.recipes.ingredients.ChemicalStackIngredient;
 import mekanism.api.recipes.ingredients.creator.IChemicalStackIngredientCreator;
 import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
+import mekanism.common.recipe.ingredient.chemical.MultiChemicalStackIngredient;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -60,7 +63,7 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 	public static final ChemicalWrapper<InfuseType, InfusionStack, ChemicalStackIngredient.InfusionStackIngredient> INFUSE_TYPE = new ChemicalWrapper<>(
 			JsonConstants.INFUSE_TYPE,
 			ChemicalType.INFUSION,
-			MekanismAPI.INFUSE_TYPE_REGISTRY_NAME,
+			MekanismAPI.infuseTypeRegistry().getRegistryKey(),
 			IngredientCreatorAccess.infusion(),
 			10L,
 			InfuseType::getFromRegistry,
@@ -165,9 +168,18 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 		@Override
 		public I read(RecipeJS recipe, Object from) {
 			if (wrapper.ingredientType.isInstance(from)) {
-				return (I) from;
+				return wrapper.ingredientType.cast(from);
 			} else if (from instanceof CharSequence) {
-				return wrapper.ingredient(from.toString(), wrapper.defaultAmount);
+				var amount = wrapper.defaultAmount;
+				var string = from.toString();
+
+				int spaceIndex = string.indexOf(' ');
+				if (spaceIndex >= 2 && string.indexOf('x') == spaceIndex - 1) {
+					amount = Integer.parseInt(string.substring(0, spaceIndex - 1));
+					string = string.substring(spaceIndex + 1);
+				}
+
+				return wrapper.ingredient(string, amount);
 			} else if (from instanceof Map<?, ?> || from instanceof JsonObject) {
 				var map = MapJS.of(from);
 
@@ -187,6 +199,7 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 			return null;
 		}
 	}
+
 
 	public record OutputComponent<C extends Chemical<C>, S extends ChemicalStack<C>, I extends ChemicalStackIngredient<C, S>>(
 			ChemicalWrapper<C, S, I> wrapper) implements RecipeComponent<S> {
@@ -216,16 +229,64 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 		@Override
 		public S read(RecipeJS recipe, Object from) {
 			if (wrapper.ingredientType.isInstance(from)) {
-				return (S) from;
-			} else if (from instanceof JsonObject || from instanceof Map<?, ?>) {
-				var json = MapJS.json(from);
-				var amount = json.has(JsonConstants.AMOUNT) ? json.get(JsonConstants.AMOUNT).getAsLong() : 0L;
-				return wrapper.stack(json.get(wrapper.key).getAsString(), amount);
+				return wrapper.stackType.cast(from);
 			} else if (from instanceof CharSequence) {
-				return wrapper.stack(from.toString(), wrapper.defaultAmount);
-			} else {
-				return null;
+				var amount = wrapper.defaultAmount;
+				var string = from.toString();
+
+				int spaceIndex = string.indexOf(' ');
+				if (spaceIndex >= 2 && string.indexOf('x') == spaceIndex - 1) {
+					amount = Integer.parseInt(string.substring(0, spaceIndex - 1));
+					string = string.substring(spaceIndex + 1);
+				}
+
+				return wrapper.stack(string, amount);
+			} else if (from instanceof Map<?, ?> || from instanceof JsonObject) {
+				var map = MapJS.of(from);
+
+				if (map != null) {
+					var id = map.get(wrapper.key());
+					var amount = map.containsKey(JsonConstants.AMOUNT) ? ((Number) map.get(JsonConstants.AMOUNT)).longValue() : wrapper.defaultAmount;
+					if (id != null) {
+						return wrapper.stack(id.toString(), amount);
+					} else {
+						if (map.containsKey(JsonConstants.TAG)) {
+							return (S) wrapper.creator().from(wrapper.tag(map.get(JsonConstants.TAG).toString()), amount);
+						}
+					}
+				}
 			}
+
+			return null;
 		}
 	}
+
+	public static ChemicalStackIngredient.GasStackIngredient ofGasIngredient(Object o) {
+		if(o instanceof ChemicalStackIngredient.GasStackIngredient gas) {
+			return gas;
+		} else if (o instanceof CharSequence) {
+			long amount = GAS.defaultAmount();
+			String gas = o.toString();
+
+			final int spaceIndex = gas.indexOf(' ');
+			if (spaceIndex >= 2 && gas.indexOf('x') == spaceIndex - 1) {
+				amount = Long.parseLong(gas.substring(0, spaceIndex - 1));
+				gas = gas.substring(spaceIndex + 1);
+			}
+
+			return GAS.ingredient(gas, amount);
+		} else if (o instanceof List<?> list) {
+			List<ChemicalStackIngredient.GasStackIngredient> ingredients = new ArrayList<>(list.size());
+			for (var obj : list) {
+				var ingredient = ofGasIngredient(obj);
+				if (ingredient != null) {
+					ingredients.add(ingredient);
+				}
+			}
+			return GAS.creator().createMulti(ingredients.toArray(new ChemicalStackIngredient.GasStackIngredient[0]));
+		}
+
+        return null;
+    }
 }
+

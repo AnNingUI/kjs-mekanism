@@ -4,26 +4,18 @@ import dev.latvian.kubejs.mekanism.custom.KubeJSGasBuilder;
 import dev.latvian.kubejs.mekanism.custom.KubeJSInfuseTypeBuilder;
 import dev.latvian.kubejs.mekanism.custom.KubeJSPigmentBuilder;
 import dev.latvian.kubejs.mekanism.custom.KubeJSSlurryBuilder;
-import dev.latvian.kubejs.mekanism.recipe.ChemicalDissolutionRecipeSchema;
-import dev.latvian.kubejs.mekanism.recipe.ChemicalInfusingRecipeSchema;
-import dev.latvian.kubejs.mekanism.recipe.CombiningRecipeSchema;
-import dev.latvian.kubejs.mekanism.recipe.CrystallizingRecipeSchema;
-import dev.latvian.kubejs.mekanism.recipe.EnergyConversionRecipeSchema;
-import dev.latvian.kubejs.mekanism.recipe.GasConversionRecipeSchema;
-import dev.latvian.kubejs.mekanism.recipe.ItemAndGasToItemRecipeSchema;
-import dev.latvian.kubejs.mekanism.recipe.ItemToItemRecipeSchema;
-import dev.latvian.kubejs.mekanism.recipe.MetallurgicInfusingRecipeSchema;
-import dev.latvian.kubejs.mekanism.recipe.OxidizingRecipeSchema;
-import dev.latvian.kubejs.mekanism.recipe.PressurizedReactionRecipeSchema;
-import dev.latvian.kubejs.mekanism.recipe.SawingRecipeSchema;
+import dev.latvian.kubejs.mekanism.recipe.*;
+import dev.latvian.kubejs.mekanism.util.ChemicalWrapper;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.recipe.schema.RegisterRecipeSchemasEvent;
 import dev.latvian.mods.kubejs.registry.RegistryInfo;
+import dev.latvian.mods.kubejs.script.ScriptType;
+import dev.latvian.mods.rhino.util.wrap.TypeWrappers;
 import mekanism.api.MekanismAPI;
-import mekanism.api.chemical.gas.Gas;
-import mekanism.api.chemical.pigment.Pigment;
-import mekanism.api.chemical.slurry.Slurry;
+import mekanism.api.chemical.gas.GasStack;
+import mekanism.api.recipes.ingredients.ChemicalStackIngredient;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class MekanismKubeJSPlugin extends KubeJSPlugin {
 	// registry builders for all mekanism chemical subtypes
 	public static final RegistryInfo GAS = RegistryInfo.of(MekanismAPI.GAS_REGISTRY_NAME);
@@ -49,26 +41,33 @@ public class MekanismKubeJSPlugin extends KubeJSPlugin {
 				.register("smelting", ItemToItemRecipeSchema.SCHEMA)
 				.register("chemical_infusing", ChemicalInfusingRecipeSchema.SCHEMA)
 				.register("combining", CombiningRecipeSchema.SCHEMA)
-				// separating = new ElectrolysisRecipeSerializer(ElectrolysisIRecipe.SCHEMA)
-				// washing = new FluidSlurryToSlurryRecipeSerializer(FluidSlurryToSlurryIRecipe.SCHEMA)
-				// evaporating = new FluidToFluidRecipeSerializer(FluidToFluidIRecipe.SCHEMA)
-				// activating = new GasToGasRecipeSerializer(ActivatingIRecipe.SCHEMA)
-				// centrifuging = new GasToGasRecipeSerializer(CentrifugingIRecipe.SCHEMA)
+				.register("separating", SeparatingRecipeSchema.SCHEMA)
+				.register("washing", WashingRecipeSchema.SCHEMA)
+				.register("evaporating", EvaporatingRecipeSchema.SCHEMA)
+				.register("centrifuging", CentrifugingRecipeSchema.SCHEMA)
 				.register("crystallizing", CrystallizingRecipeSchema.SCHEMA)
 				.register("dissolution", ChemicalDissolutionRecipeSchema.SCHEMA)
 				.register("compressing", ItemAndGasToItemRecipeSchema.SCHEMA)
 				.register("purifying", ItemAndGasToItemRecipeSchema.SCHEMA)
 				.register("injecting", ItemAndGasToItemRecipeSchema.SCHEMA)
-				// nucleosynthesizing = new NucleosynthesizingRecipeSerializer(NucleosynthesizingIRecipe.SCHEMA)
+				.register("nucleosynthesizing", NucleosynthesizingRecipeSchema.SCHEMA)
 				.register("energy_conversion", EnergyConversionRecipeSchema.SCHEMA)
 				.register("gas_conversion", GasConversionRecipeSchema.SCHEMA)
 				.register("oxidizing", OxidizingRecipeSchema.SCHEMA)
-				// infusion_conversion = new ItemStackToInfuseTypeRecipeSerializer(InfusionConversionIRecipe.SCHEMA)
 				.register("metallurgic_infusing", MetallurgicInfusingRecipeSchema.SCHEMA)
 				.register("reaction", PressurizedReactionRecipeSchema.SCHEMA)
-				// rotary = new RotaryRecipeSerializer(new RotaryIRecipe.Factory())
 				.register("sawing", SawingRecipeSchema.SCHEMA)
-
+				.register("infusion_conversion", ItemToInfuseTypeRecipeSchema.SCHEMA)
+				.register("activating", ActivatingRecipeSchema.SCHEMA)
+				.register("pigment_mixing", PigmentMixingRecipeSchema.SCHEMA)
+				.register("pigment_extracting", PigmentExtractingRecipeSchema.SCHEMA)
+				.register("painting", PaintingRecipeSchema.SCHEMA)
+				.register("rotary", RotaryRecipeSchema.SCHEMA)
 		;
+	}
+
+	@Override
+	public void registerTypeWrappers(ScriptType type, TypeWrappers typeWrappers) {
+		typeWrappers.registerSimple(ChemicalStackIngredient.GasStackIngredient.class, ChemicalWrapper::ofGasIngredient);
 	}
 }

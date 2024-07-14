@@ -13,7 +13,8 @@ import mekanism.common.tags.MekanismTags;
 public interface MetallurgicInfusingRecipeSchema {
 	RecipeKey<OutputItem> OUTPUT = ItemComponents.OUTPUT.key(JsonConstants.OUTPUT);
 	RecipeKey<ItemStackIngredient> ITEM_INPUT = MekComponents.INPUT_ITEM.key(JsonConstants.ITEM_INPUT);
-	RecipeKey<ChemicalStackIngredient.InfusionStackIngredient> CHEMICAL_INPUT = MekComponents.INFUSE_TYPE_INPUT.key(JsonConstants.CHEMICAL_INPUT).optional(IngredientCreatorAccess.infusion().from(MekanismTags.InfuseTypes.REDSTONE, 10));
+	RecipeKey<ChemicalStackIngredient.InfusionStackIngredient> CHEMICAL_INPUT = MekComponents.INFUSE_TYPE_INPUT.key(JsonConstants.CHEMICAL_INPUT)
+			.optional(IngredientCreatorAccess.infusion().from(MekanismTags.InfuseTypes.REDSTONE, 10));
 
 	RecipeSchema SCHEMA = new RecipeSchema(MekanismRecipeJS.class, MekanismRecipeJS::new, OUTPUT, ITEM_INPUT, CHEMICAL_INPUT);
 }
