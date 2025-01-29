@@ -1,7 +1,15 @@
 package dev.latvian.kubejs.mekanism.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import org.jetbrains.annotations.Nullable;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
 import dev.latvian.mods.kubejs.recipe.RecipeJS;
 import dev.latvian.mods.kubejs.recipe.component.ComponentRole;
 import dev.latvian.mods.kubejs.recipe.component.RecipeComponent;
@@ -24,17 +32,10 @@ import mekanism.api.chemical.slurry.SlurryStack;
 import mekanism.api.recipes.ingredients.ChemicalStackIngredient;
 import mekanism.api.recipes.ingredients.creator.IChemicalStackIngredientCreator;
 import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
-import mekanism.common.recipe.ingredient.chemical.MultiChemicalStackIngredient;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 // @formatter:off
 public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>, I extends ChemicalStackIngredient<C, S>>(
@@ -97,7 +98,7 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 	);
 // @formatter:on
 
-	public static final ChemicalWrapper<?, ?, ?>[] VALUES = {GAS, INFUSE_TYPE, PIGMENT, SLURRY};
+	public static final ChemicalWrapper<?, ?, ?>[] VALUES = { GAS, INFUSE_TYPE, PIGMENT, SLURRY };
 
 	@Nullable
 	public static ChemicalWrapper<?, ?, ?> find(Map<?, ?> map) {
@@ -123,6 +124,7 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 		return creator.from(chemicalFromId.apply(new ResourceLocation(id)), amount);
 	}
 
+	@SuppressWarnings("unchecked")
 	public S stack(String id, long amount) {
 		if (amount <= 0) {
 			amount = defaultAmount;
@@ -162,7 +164,8 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 
 		@Override
 		public TypeDescJS constructorDescription(DescriptionContext ctx) {
-			return TypeDescJS.object().add(wrapper.key, wrapper.describe(ctx)).add(JsonConstants.AMOUNT, TypeDescJS.NUMBER).or(wrapper.describe(ctx));
+			return TypeDescJS.object().add(wrapper.key, wrapper.describe(ctx))
+					.add(JsonConstants.AMOUNT, TypeDescJS.NUMBER).or(wrapper.describe(ctx));
 		}
 
 		@Override
@@ -185,7 +188,9 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 
 				if (map != null) {
 					var id = map.get(wrapper.key());
-					var amount = map.containsKey(JsonConstants.AMOUNT) ? ((Number) map.get(JsonConstants.AMOUNT)).longValue() : wrapper.defaultAmount;
+					var amount = map.containsKey(JsonConstants.AMOUNT)
+							? ((Number) map.get(JsonConstants.AMOUNT)).longValue()
+							: wrapper.defaultAmount;
 					if (id != null) {
 						return wrapper.ingredient(id.toString(), amount);
 					} else {
@@ -199,7 +204,6 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 			return null;
 		}
 	}
-
 
 	public record OutputComponent<C extends Chemical<C>, S extends ChemicalStack<C>, I extends ChemicalStackIngredient<C, S>>(
 			ChemicalWrapper<C, S, I> wrapper) implements RecipeComponent<S> {
@@ -215,7 +219,8 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 
 		@Override
 		public TypeDescJS constructorDescription(DescriptionContext ctx) {
-			return TypeDescJS.object().add(wrapper.key, wrapper.describe(ctx)).add(JsonConstants.AMOUNT, TypeDescJS.NUMBER).or(wrapper.describe(ctx));
+			return TypeDescJS.object().add(wrapper.key, wrapper.describe(ctx))
+					.add(JsonConstants.AMOUNT, TypeDescJS.NUMBER).or(wrapper.describe(ctx));
 		}
 
 		@Override
@@ -226,6 +231,7 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 			return json;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public S read(RecipeJS recipe, Object from) {
 			if (wrapper.ingredientType.isInstance(from)) {
@@ -246,12 +252,15 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 
 				if (map != null) {
 					var id = map.get(wrapper.key());
-					var amount = map.containsKey(JsonConstants.AMOUNT) ? ((Number) map.get(JsonConstants.AMOUNT)).longValue() : wrapper.defaultAmount;
+					var amount = map.containsKey(JsonConstants.AMOUNT)
+							? ((Number) map.get(JsonConstants.AMOUNT)).longValue()
+							: wrapper.defaultAmount;
 					if (id != null) {
 						return wrapper.stack(id.toString(), amount);
 					} else {
 						if (map.containsKey(JsonConstants.TAG)) {
-							return (S) wrapper.creator().from(wrapper.tag(map.get(JsonConstants.TAG).toString()), amount);
+							return (S) wrapper.creator().from(wrapper.tag(map.get(JsonConstants.TAG).toString()),
+									amount);
 						}
 					}
 				}
@@ -262,7 +271,7 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 	}
 
 	public static ChemicalStackIngredient.GasStackIngredient ofGasIngredient(Object o) {
-		if(o instanceof ChemicalStackIngredient.GasStackIngredient gas) {
+		if (o instanceof ChemicalStackIngredient.GasStackIngredient gas) {
 			return gas;
 		} else if (o instanceof CharSequence) {
 			long amount = GAS.defaultAmount();
@@ -286,7 +295,6 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 			return GAS.creator().createMulti(ingredients.toArray(new ChemicalStackIngredient.GasStackIngredient[0]));
 		}
 
-        return null;
-    }
+		return null;
+	}
 }
-

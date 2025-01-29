@@ -5,17 +5,19 @@ import dev.latvian.kubejs.mekanism.custom.KubeJSInfuseTypeBuilder;
 import dev.latvian.kubejs.mekanism.custom.KubeJSPigmentBuilder;
 import dev.latvian.kubejs.mekanism.custom.KubeJSSlurryBuilder;
 import dev.latvian.kubejs.mekanism.recipe.*;
+import dev.latvian.kubejs.mekanism.registry.KubeJSUnitItemBuilder;
 import dev.latvian.kubejs.mekanism.util.ChemicalWrapper;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.recipe.schema.RegisterRecipeSchemasEvent;
 import dev.latvian.mods.kubejs.registry.RegistryInfo;
+import dev.latvian.mods.kubejs.script.BindingsEvent;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.rhino.util.wrap.TypeWrappers;
 import mekanism.api.MekanismAPI;
-import mekanism.api.chemical.gas.GasStack;
 import mekanism.api.recipes.ingredients.ChemicalStackIngredient;
 
-@SuppressWarnings({"unchecked", "rawtypes"})
+
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class MekanismKubeJSPlugin extends KubeJSPlugin {
 	// registry builders for all mekanism chemical subtypes
 	public static final RegistryInfo GAS = RegistryInfo.of(MekanismAPI.GAS_REGISTRY_NAME);
@@ -25,6 +27,7 @@ public class MekanismKubeJSPlugin extends KubeJSPlugin {
 
 	@Override
 	public void init() {
+		RegistryInfo.ITEM.addType("mek_unit", KubeJSUnitItemBuilder.class, KubeJSUnitItemBuilder::new);
 		GAS.addType("basic", KubeJSGasBuilder.class, KubeJSGasBuilder::new);
 		INFUSE_TYPE.addType("basic", KubeJSInfuseTypeBuilder.class, KubeJSInfuseTypeBuilder::new);
 		PIGMENT.addType("basic", KubeJSPigmentBuilder.class, KubeJSPigmentBuilder::new);
@@ -62,12 +65,16 @@ public class MekanismKubeJSPlugin extends KubeJSPlugin {
 				.register("pigment_mixing", PigmentMixingRecipeSchema.SCHEMA)
 				.register("pigment_extracting", PigmentExtractingRecipeSchema.SCHEMA)
 				.register("painting", PaintingRecipeSchema.SCHEMA)
-				.register("rotary", RotaryRecipeSchema.SCHEMA)
-		;
+				.register("rotary", RotaryRecipeSchema.SCHEMA);
 	}
 
 	@Override
 	public void registerTypeWrappers(ScriptType type, TypeWrappers typeWrappers) {
 		typeWrappers.registerSimple(ChemicalStackIngredient.GasStackIngredient.class, ChemicalWrapper::ofGasIngredient);
+	}
+
+	@Override
+	public void registerBindings(BindingsEvent event) {
+		event.add("MekUnitItemSlots", KubeJSUnitItemBuilder.UnitItemSlots.class);
 	}
 }
