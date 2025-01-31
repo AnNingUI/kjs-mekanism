@@ -1,6 +1,5 @@
-package dev.latvian.kubejs.mekanism.registry;
+package dev.latvian.kubejs.mekanism.custom.item;
 
-import dev.latvian.mods.kubejs.item.custom.BasicItemJS;
 import mekanism.api.gear.IModuleHelper;
 import mekanism.api.gear.ModuleData;
 import mekanism.api.providers.IModuleDataProvider;
@@ -10,6 +9,7 @@ import mekanism.client.key.MekKeyHandler;
 import mekanism.client.key.MekanismKeyHandler;
 import mekanism.common.MekanismLang;
 import mekanism.common.content.gear.IModuleItem;
+import mekanism.common.item.ItemModule;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -19,25 +19,21 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
-import static dev.latvian.kubejs.mekanism.registry.KubeJSUnitItemBuilder.ITEM_MAP;
+import static dev.latvian.kubejs.mekanism.util.KubeJSMekUntiItemUtils.getModuleById;
 
-public class KubeJSUnitItem extends BasicItemJS implements IModuleItem {
-    public KubeJSUnitItemBuilder.UnitItemSlots slot;
-
+public class KubeJSUnitItem extends ItemModule implements IModuleItem {
     public KubeJSUnitItemBuilder itemBuilder;
+    public IModuleDataProvider<?> moduleData;
 
-    private final IModuleDataProvider<?> moduleData;
-
-    public KubeJSUnitItem(KubeJSUnitItemBuilder builder, IModuleDataProvider<?> moduleData) {
-        super(builder);
+    public KubeJSUnitItem(IModuleDataProvider<?> moduleData, KubeJSUnitItemBuilder builder) {
+        super(moduleData ,builder.createItemProperties());
         this.itemBuilder = builder;
-        this.slot = builder.slot;
         this.moduleData = moduleData;
-        System.out.println("注册模块物品++++：" + this.itemBuilder.id.toString() + " " + this.kjs$getId());
-        System.out.println("ITEM_MAP++++：" + ITEM_MAP);
     }
+
 
     @Override
     public int getMaxStackSize(ItemStack stack) {
@@ -46,18 +42,11 @@ public class KubeJSUnitItem extends BasicItemJS implements IModuleItem {
 
     @Override
     public ModuleData<?> getModuleData() {
-        try {
-            if (this.moduleData != null) {
-                return this.itemBuilder.getModuleData().getModuleData();
-            } else if (KubeJSUnitItemModules.allModules.get(this.itemBuilder.id) != null) {
-                var moduleData = KubeJSUnitItemModules.allModules.get(this.itemBuilder.id);
-                return moduleData.getModuleData();
-            }
-        } catch (Exception ignored) {
-            System.out.println("获取模块数据失败：" + this.itemBuilder.id.toString());
-            return null;
+        if (this.moduleData == null) {
+            return Objects.requireNonNull(getModuleById(itemBuilder.id)).getModuleData();
+        } else {
+            return this.moduleData.getModuleData();
         }
-        return null;
     }
 
     @NotNull
@@ -83,7 +72,6 @@ public class KubeJSUnitItem extends BasicItemJS implements IModuleItem {
             }
         } else {
             ModuleData<?> moduleData = getModuleData();
-            System.out.println("模块数据 + " + moduleData);
             if (moduleData != null) {
                 tooltip.add(TextComponentUtil.translate(moduleData.getDescriptionTranslationKey()));
                 tooltip.add(MekanismLang.MODULE_STACKABLE.translateColored(EnumColor.GRAY, EnumColor.AQUA, moduleData.getMaxStackSize()));
@@ -92,11 +80,5 @@ public class KubeJSUnitItem extends BasicItemJS implements IModuleItem {
                 tooltip.add(TextComponentUtil.translate(getDescriptionId()));
             }
         }
-    }
-
-    @NotNull
-    @Override
-    public String getDescriptionId() {
-        return itemBuilder.getTranslationKey();
     }
 }

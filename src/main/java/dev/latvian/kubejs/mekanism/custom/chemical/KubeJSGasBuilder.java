@@ -1,4 +1,4 @@
-package dev.latvian.kubejs.mekanism.custom;
+package dev.latvian.kubejs.mekanism.custom.chemical;
 
 import dev.latvian.kubejs.mekanism.MekanismKubeJSPlugin;
 import dev.latvian.kubejs.mekanism.util.CachingGasProvider;

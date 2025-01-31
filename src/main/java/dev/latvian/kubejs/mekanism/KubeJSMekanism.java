@@ -1,15 +1,15 @@
 package dev.latvian.kubejs.mekanism;
 
-import dev.latvian.kubejs.mekanism.registry.KubeJSUnitItemModule;
-import dev.latvian.kubejs.mekanism.registry.KubeJSUnitItemModules;
 import mekanism.api.MekanismIMC;
 import mekanism.common.integration.MekanismHooks;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-import static dev.latvian.kubejs.mekanism.registry.KubeJSUnitItemBuilder.allIds;
+import static dev.latvian.kubejs.mekanism.custom.module.KubeJSModuleDataBuilder.getAllBuilder;
+import static dev.latvian.kubejs.mekanism.util.KubeJSMekUntiItemUtils.getModuleById;
 
 @Mod(KubeJSMekanism.MOD_ID)
 public class KubeJSMekanism {
@@ -18,43 +18,38 @@ public class KubeJSMekanism {
 
 	public KubeJSMekanism() {
 		IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-		if (!allIds.isEmpty()) {
-			KubeJSUnitItemModules.register(modEventBus);
-		}
-		if (!KubeJSUnitItemModule.allInstances.isEmpty()) {
-			modEventBus.addListener(this::onImcQueue);
-		}
+		modEventBus.addListener(this::onImcQueue);
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	public static final MekanismHooks hooks = new MekanismHooks();
 
 	private void onImcQueue(InterModEnqueueEvent event) {
 		hooks.sendIMCMessages(event);
-		var allItems = KubeJSUnitItemModule.allInstances.values();
-//		System.out.println("Sending IMC messages for " + allItems.size() + " unit items." + allItems);
-		for (KubeJSUnitItemModule instance : allItems) {
-			var moduleRegistryObject = KubeJSUnitItemModules.allModules.get(instance.itemBuilder.id);
-			switch (instance.itemBuilder.slot) {
+		var a = getAllBuilder();
+		a.forEach(b -> {
+			var s  = b.slot;
+			var id = b.id;
+			var m  = getModuleById(id);
+			switch (s) {
 				case ALL:
-					MekanismIMC.addModulesToAll(moduleRegistryObject);
+					MekanismIMC.addModulesToAll(m);
 					break;
 				case MEK_TOOL:
-					MekanismIMC.addMekaToolModules(moduleRegistryObject);
+					MekanismIMC.addMekaToolModules(m);
 					break;
 				case MEK_SUIT_HELMET:
-					MekanismIMC.addMekaSuitHelmetModules(moduleRegistryObject);
+					MekanismIMC.addMekaSuitHelmetModules(m);
 					break;
 				case MEK_SUIT_BODY:
-					MekanismIMC.addMekaSuitBodyarmorModules(moduleRegistryObject);
+					MekanismIMC.addMekaSuitBodyarmorModules(m);
 					break;
 				case MEK_SUIT_PANTS:
-					MekanismIMC.addMekaSuitPantsModules(moduleRegistryObject);
+					MekanismIMC.addMekaSuitPantsModules(m);
 					break;
 				case MEK_SUIT_BOOTS:
-					MekanismIMC.addMekaSuitBootsModules(moduleRegistryObject);
-					break;
+					MekanismIMC.addMekaSuitBootsModules(m);
 			}
-
-		}
+		});
 	}
 }

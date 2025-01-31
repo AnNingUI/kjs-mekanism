@@ -1,11 +1,12 @@
 package dev.latvian.kubejs.mekanism;
 
-import dev.latvian.kubejs.mekanism.custom.KubeJSGasBuilder;
-import dev.latvian.kubejs.mekanism.custom.KubeJSInfuseTypeBuilder;
-import dev.latvian.kubejs.mekanism.custom.KubeJSPigmentBuilder;
-import dev.latvian.kubejs.mekanism.custom.KubeJSSlurryBuilder;
+import dev.latvian.kubejs.mekanism.custom.chemical.KubeJSGasBuilder;
+import dev.latvian.kubejs.mekanism.custom.chemical.KubeJSInfuseTypeBuilder;
+import dev.latvian.kubejs.mekanism.custom.chemical.KubeJSPigmentBuilder;
+import dev.latvian.kubejs.mekanism.custom.chemical.KubeJSSlurryBuilder;
+import dev.latvian.kubejs.mekanism.custom.enums.UnitItemSlots;
+import dev.latvian.kubejs.mekanism.custom.item.KubeJSUnitItemBuilder;
 import dev.latvian.kubejs.mekanism.recipe.*;
-import dev.latvian.kubejs.mekanism.registry.KubeJSUnitItemBuilder;
 import dev.latvian.kubejs.mekanism.util.ChemicalWrapper;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.recipe.schema.RegisterRecipeSchemasEvent;
@@ -17,18 +18,23 @@ import mekanism.api.MekanismAPI;
 import mekanism.api.gear.ModuleData;
 import mekanism.api.recipes.ingredients.ChemicalStackIngredient;
 
+import static dev.latvian.mods.kubejs.registry.RegistryInfo.ITEM;
+
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class MekanismKubeJSPlugin extends KubeJSPlugin {
 	// registry builders for all mekanism chemical subtypes
 	public static final RegistryInfo GAS = RegistryInfo.of(MekanismAPI.GAS_REGISTRY_NAME);
+
+	public static final RegistryInfo MODULE_DATA = RegistryInfo.of(MekanismAPI.MODULE_REGISTRY_NAME);
+
 	public static final RegistryInfo INFUSE_TYPE = RegistryInfo.of(MekanismAPI.INFUSE_TYPE_REGISTRY_NAME);
 	public static final RegistryInfo PIGMENT = RegistryInfo.of(MekanismAPI.PIGMENT_REGISTRY_NAME);
 	public static final RegistryInfo SLURRY = RegistryInfo.of(MekanismAPI.SLURRY_REGISTRY_NAME);
 
 	@Override
 	public void init() {
-		RegistryInfo.ITEM.addType("mek_unit", KubeJSUnitItemBuilder.class, KubeJSUnitItemBuilder::new);
+		ITEM.addType("mek_unit", KubeJSUnitItemBuilder.class, KubeJSUnitItemBuilder::new);
 		GAS.addType("basic", KubeJSGasBuilder.class, KubeJSGasBuilder::new);
 		INFUSE_TYPE.addType("basic", KubeJSInfuseTypeBuilder.class, KubeJSInfuseTypeBuilder::new);
 		PIGMENT.addType("basic", KubeJSPigmentBuilder.class, KubeJSPigmentBuilder::new);
@@ -76,7 +82,7 @@ public class MekanismKubeJSPlugin extends KubeJSPlugin {
 
 	@Override
 	public void registerBindings(BindingsEvent event) {
-		event.add("MekUnitItemSlots", KubeJSUnitItemBuilder.UnitItemSlots.class);
+		event.add("MekUnitItemSlots", UnitItemSlots.Slots.class);
 		event.add("ExclusiveFlag", ModuleData.ExclusiveFlag.class);
 	}
 
