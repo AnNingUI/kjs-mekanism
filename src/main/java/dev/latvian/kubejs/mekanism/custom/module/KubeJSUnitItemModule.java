@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class KubeJSUnitItemModule implements ICustomModule<KubeJSUnitItemModule>  {
+public class KubeJSUnitItemModule implements ICustomModule<KubeJSUnitItemModule> {
     public KubeJSUnitItemBuilder itemBuilder;
 
 
