@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-import static dev.latvian.kubejs.mekanism.custom.module.KubeJSModuleDataBuilder.getAllBuilder;
+import static dev.latvian.kubejs.mekanism.custom.module.KubeJSModuleDataBuilder.getAllModuleDataBuilder;
 import static dev.latvian.kubejs.mekanism.util.KubeJSMekUntiItemUtils.getModuleById;
 
 @Mod(KubeJSMekanism.MOD_ID)
@@ -26,7 +26,7 @@ public class KubeJSMekanism {
 
 	private void onImcQueue(InterModEnqueueEvent event) {
 		hooks.sendIMCMessages(event);
-		var a = getAllBuilder();
+		var a = getAllModuleDataBuilder();
 		a.forEach(b -> {
 			var s  = b.slot;
 			var id = b.id;
