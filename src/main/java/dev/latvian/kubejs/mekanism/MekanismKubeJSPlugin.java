@@ -14,6 +14,7 @@ import dev.latvian.mods.kubejs.script.BindingsEvent;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.rhino.util.wrap.TypeWrappers;
 import mekanism.api.MekanismAPI;
+import mekanism.api.gear.ModuleData;
 import mekanism.api.recipes.ingredients.ChemicalStackIngredient;
 
 
@@ -76,5 +77,8 @@ public class MekanismKubeJSPlugin extends KubeJSPlugin {
 	@Override
 	public void registerBindings(BindingsEvent event) {
 		event.add("MekUnitItemSlots", KubeJSUnitItemBuilder.UnitItemSlots.class);
+		event.add("ExclusiveFlag", ModuleData.ExclusiveFlag.class);
 	}
+
+
 }

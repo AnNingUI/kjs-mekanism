@@ -1,83 +1,102 @@
 package dev.latvian.kubejs.mekanism.registry;
 
-import dev.latvian.mods.kubejs.item.ItemBuilder;
 import dev.latvian.mods.kubejs.item.custom.BasicItemJS;
-import mekanism.api.gear.ICustomModule;
-import mekanism.api.gear.IHUDElement;
-import mekanism.api.gear.IModule;
-import mekanism.api.gear.config.ModuleConfigItemCreator;
+import mekanism.api.gear.IModuleHelper;
+import mekanism.api.gear.ModuleData;
+import mekanism.api.providers.IModuleDataProvider;
+import mekanism.api.text.EnumColor;
+import mekanism.api.text.TextComponentUtil;
+import mekanism.client.key.MekKeyHandler;
+import mekanism.client.key.MekanismKeyHandler;
+import mekanism.common.MekanismLang;
+import mekanism.common.content.gear.IModuleItem;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Consumer;
+import java.util.List;
+import java.util.Set;
 
-public class  KubeJSUnitItem extends BasicItemJS implements ICustomModule<KubeJSUnitItem> {
+import static dev.latvian.kubejs.mekanism.registry.KubeJSUnitItemBuilder.ITEM_MAP;
 
-    private final KubeJSUnitItemBuilder itemBuilder;
+public class KubeJSUnitItem extends BasicItemJS implements IModuleItem {
+    public KubeJSUnitItemBuilder.UnitItemSlots slot;
 
-    @Override
-    public void init(IModule<KubeJSUnitItem> module, ModuleConfigItemCreator configItemCreator) {
-        // 修改 initCallBack 的类型以匹配 IModule<KubeJSUnitItem>
-        if (itemBuilder.initCallBack != null) {
-            itemBuilder.initCallBack.apply(module, configItemCreator);
-        } else {
-            ICustomModule.super.init(module, configItemCreator);
-        }
+    public KubeJSUnitItemBuilder itemBuilder;
+
+    private final IModuleDataProvider<?> moduleData;
+
+    public KubeJSUnitItem(KubeJSUnitItemBuilder builder, IModuleDataProvider<?> moduleData) {
+        super(builder);
+        this.itemBuilder = builder;
+        this.slot = builder.slot;
+        this.moduleData = moduleData;
+        System.out.println("注册模块物品++++：" + this.itemBuilder.id.toString() + " " + this.kjs$getId());
+        System.out.println("ITEM_MAP++++：" + ITEM_MAP);
     }
 
     @Override
-    public void tickServer(IModule<KubeJSUnitItem> module, Player player) {
-        if (itemBuilder.tickServerCallBack != null) {
-            itemBuilder.tickServerCallBack.apply(module, player);
-        } else {
-            ICustomModule.super.tickServer(module, player);
-        }
+    public int getMaxStackSize(ItemStack stack) {
+        return itemBuilder.maxStackSize;
     }
 
     @Override
-    public void addHUDStrings(IModule<KubeJSUnitItem> module, Player player, Consumer<Component> hudStringAdder) {
-        if (itemBuilder.addHUDStringsCallBack != null) {
-            itemBuilder.addHUDStringsCallBack.apply(module, player, hudStringAdder);
-        } else {
-            ICustomModule.super.addHUDStrings(module, player, hudStringAdder);
+    public ModuleData<?> getModuleData() {
+        try {
+            if (this.moduleData != null) {
+                return this.itemBuilder.getModuleData().getModuleData();
+            } else if (KubeJSUnitItemModules.allModules.get(this.itemBuilder.id) != null) {
+                var moduleData = KubeJSUnitItemModules.allModules.get(this.itemBuilder.id);
+                return moduleData.getModuleData();
+            }
+        } catch (Exception ignored) {
+            System.out.println("获取模块数据失败：" + this.itemBuilder.id.toString());
+            return null;
         }
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public Rarity getRarity(@NotNull ItemStack stack) {
+        return itemBuilder.rarity;
     }
 
     @Override
-    public void addHUDElements(IModule<KubeJSUnitItem> module, Player player, Consumer<IHUDElement> hudElementAdder) {
-        if (itemBuilder.addHUDElementsCallBack != null) {
-            itemBuilder.addHUDElementsCallBack.apply(module, player, hudElementAdder);
+    public void appendHoverText(@NotNull ItemStack stack, Level world, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+        if (MekKeyHandler.isKeyPressed(MekanismKeyHandler.detailsKey)) {
+            tooltip.add(MekanismLang.MODULE_SUPPORTED.translateColored(EnumColor.BRIGHT_GREEN));
+            IModuleHelper moduleHelper = IModuleHelper.INSTANCE;
+            for (Item item : moduleHelper.getSupported(getModuleData())) {
+                tooltip.add(MekanismLang.GENERIC_LIST.translate(item.getName(new ItemStack(item))));
+            }
+            Set<ModuleData<?>> conflicting = moduleHelper.getConflicting(getModuleData());
+            if (!conflicting.isEmpty()) {
+                tooltip.add(MekanismLang.MODULE_CONFLICTING.translateColored(EnumColor.RED));
+                for (ModuleData<?> module : conflicting) {
+                    tooltip.add(MekanismLang.GENERIC_LIST.translate(module));
+                }
+            }
         } else {
-            ICustomModule.super.addHUDElements(module, player, hudElementAdder);
+            ModuleData<?> moduleData = getModuleData();
+            System.out.println("模块数据 + " + moduleData);
+            if (moduleData != null) {
+                tooltip.add(TextComponentUtil.translate(moduleData.getDescriptionTranslationKey()));
+                tooltip.add(MekanismLang.MODULE_STACKABLE.translateColored(EnumColor.GRAY, EnumColor.AQUA, moduleData.getMaxStackSize()));
+                tooltip.add(MekanismLang.HOLD_FOR_SUPPORTED_ITEMS.translateColored(EnumColor.GRAY, EnumColor.INDIGO, MekanismKeyHandler.detailsKey.getTranslatedKeyMessage()));
+            } else {
+                tooltip.add(TextComponentUtil.translate(getDescriptionId()));
+            }
         }
     }
 
+    @NotNull
     @Override
-    public void tickClient(IModule<KubeJSUnitItem> module, Player player) {
-        if (itemBuilder.tickClientCallBack != null) {
-            itemBuilder.tickClientCallBack.apply(module, player);
-        } else {
-            ICustomModule.super.tickClient(module, player);
-        }
+    public String getDescriptionId() {
+        return itemBuilder.getTranslationKey();
     }
-
-    public KubeJSUnitItem(ItemBuilder p) {
-        super(p);
-        this.itemBuilder = (KubeJSUnitItemBuilder) p;
-    }
-
 }
-
-
-/**
- * MEK UNIT ITEM 注册
- ENERGY_UNIT -> 通过 在 `MekanismModules` 类 注册 其中需要参数要 `MODULE_ENERGY` ,而 `MODULE_ENERGY` 是 在 `MekanismItems` 注册
- ，要用到`ENERGY_UNIT`，而`ENERGY_UNIT`还需要去监听`InterModEnqueueEvent`事件调用MekanismIMC.addModulesToAll方法才可以确定可用槽位
-
- * KUBEJS ITEM 注册
- 先确定ItemBuilder类，再Item类实例方法传参，最后注册到KubeJS插件主类在重写init方法中RegistryInfo.ITEM.addType("mek_unit", KubeJSUnitItemBuilder.class, KubeJSUnitItemBuilder::new);
- 就可以添加对应的物品注册类型了
-
- ** 那么怎么样通过编写KJS 插件提供出Js Api让开发者可以在kjs脚本中调用快速创建MEK UNIT ITEM？
-
- * */

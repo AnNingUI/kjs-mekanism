@@ -6,61 +6,73 @@ import mekanism.api.gear.IHUDElement;
 import mekanism.api.gear.IModule;
 import mekanism.api.gear.ModuleData;
 import mekanism.api.gear.config.ModuleConfigItemCreator;
-import mekanism.api.providers.IItemProvider;
+import mekanism.api.providers.IModuleDataProvider;
 import mekanism.common.registration.impl.ModuleDeferredRegister;
-import mekanism.common.registration.impl.ModuleRegistryObject;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.UnaryOperator;
 
 public class KubeJSUnitItemBuilder extends ItemBuilder {
-
     public UnitItemSlots slot;
 
-    public BiFunction<IModule<KubeJSUnitItem>, ModuleConfigItemCreator, Void> initCallBack = (module,
-            configItemCreator) -> null;
-    public BiFunction<IModule<KubeJSUnitItem>, Player, Void> tickServerCallBack = (module, player) -> null;
-    public BiFunction<IModule<KubeJSUnitItem>, Player, Void> tickClientCallBack = (module, player) -> null;
-    public TriConsumer<IModule<KubeJSUnitItem>, Player, Consumer<Component>> addHUDStringsCallBack = (
-            module, player, hudStringAdder) -> {
-    };
+    public static Map<ResourceLocation, KubeJSUnitItem> ITEM_MAP = new HashMap<>();
 
-    public TriConsumer<IModule<KubeJSUnitItem>, Player, Consumer<IHUDElement>> addHUDElementsCallBack = (
+    public static Set<KubeJSUnitItemBuilder> allIds = new HashSet<>();
+
+
+    public static Map<ResourceLocation ,ModuleDeferredRegister> allModulesRegistered = new HashMap<>();
+
+    public BiFunction<IModule<KubeJSUnitItemModule>, ModuleConfigItemCreator, Void> initCallBack = (module,
+                                                                                                    configItemCreator) -> null;
+    public TriConsumer<IModule<KubeJSUnitItemModule>, Player, Consumer<IHUDElement>> addHUDElementsCallBack = (
             module, player, hudElementAdder) -> {
     };
+    public BiFunction<IModule<KubeJSUnitItemModule>, Player, Void> tickServerCallBack = (module, player) -> null;
+    public BiFunction<IModule<KubeJSUnitItemModule>, Player, Void> tickClientCallBack = (module, player) -> null;
+    public TriConsumer<IModule<KubeJSUnitItemModule>, Player, Consumer<Component>> addHUDStringsCallBack = (
+            module, player, hudStringAdder) -> {
+    };
+    public int exclusive;
+    public boolean rendersHUD;
 
-    public KubeJSUnitItemBuilder(ResourceLocation id) {
-        super(id);
+    private IModuleDataProvider<?> moduleData;
+
+    public KubeJSUnitItemBuilder(ResourceLocation i) {
+        super(i);
+        allIds.add(this);
+        allModulesRegistered.put(this.id, new ModuleDeferredRegister(id.getNamespace()));
     }
 
-    public KubeJSUnitItemBuilder init(BiFunction<IModule<KubeJSUnitItem>, ModuleConfigItemCreator, Void> initCallBack) {
+    public KubeJSUnitItemBuilder init(BiFunction<IModule<KubeJSUnitItemModule>, ModuleConfigItemCreator, Void> initCallBack) {
         this.initCallBack = initCallBack;
         return this;
     }
 
-    public KubeJSUnitItemBuilder tickServer(BiFunction<IModule<KubeJSUnitItem>, Player, Void> tickServerCallBack) {
+    public KubeJSUnitItemBuilder tickServer(BiFunction<IModule<KubeJSUnitItemModule>, Player, Void> tickServerCallBack) {
         this.tickServerCallBack = tickServerCallBack;
         return this;
     }
 
-    public KubeJSUnitItemBuilder tickClient(BiFunction<IModule<KubeJSUnitItem>, Player, Void> tickClientCallBack) {
+    public KubeJSUnitItemBuilder tickClient(BiFunction<IModule<KubeJSUnitItemModule>, Player, Void> tickClientCallBack) {
         this.tickClientCallBack = tickClientCallBack;
         return this;
     }
 
     public KubeJSUnitItemBuilder addHUDStrings(
-            TriConsumer<IModule<KubeJSUnitItem>, Player, Consumer<Component>> addHUDStringsCallBack) {
+            TriConsumer<IModule<KubeJSUnitItemModule>, Player, Consumer<Component>> addHUDStringsCallBack) {
         this.addHUDStringsCallBack = addHUDStringsCallBack;
         return this;
     }
 
     public KubeJSUnitItemBuilder addHUDElements(
-            TriConsumer<IModule<KubeJSUnitItem>, Player, Consumer<IHUDElement>> addHUDElementsCallBack) {
+            TriConsumer<IModule<KubeJSUnitItemModule>, Player, Consumer<IHUDElement>> addHUDElementsCallBack) {
         this.addHUDElementsCallBack = addHUDElementsCallBack;
         return this;
     }
@@ -70,11 +82,43 @@ public class KubeJSUnitItemBuilder extends ItemBuilder {
         return this;
     }
 
+    public KubeJSUnitItemBuilder setExclusive(int exclusive) {
+        this.exclusive = exclusive;
+        return this;
+    }
 
+    public KubeJSUnitItemBuilder setExclusiveByFlag(ModuleData.ExclusiveFlag... flags) {
+        this.exclusive = flags.length == 0 ? ModuleData.ExclusiveFlag.ANY : ModuleData.ExclusiveFlag.getCompoundMask(flags);
+        return this;
+    }
+
+    public KubeJSUnitItemBuilder setRendersHUD(boolean rendersHUD) {
+        this.rendersHUD = rendersHUD;
+        return this;
+    }
 
     @Override
-    public Item createObject() {
-        return new KubeJSUnitItem(this);
+    public KubeJSUnitItem createObject() {
+        var r = new KubeJSUnitItem(this, getModuleData());
+        allIds.add(this);
+        ITEM_MAP.put(this.id, r);
+        return r;
+    }
+
+    public IModuleDataProvider<?> getModuleData() {
+        if (this.moduleData != null) {
+            return moduleData;
+        } else {
+            return KubeJSUnitItemModules.allModules.get(this.id);
+        }
+    }
+
+    public void setModuleData(IModuleDataProvider<?> moduleData) {
+        this.moduleData = moduleData;
+    }
+
+    public String getTranslationKey() {
+        return "tooltip." + id.getNamespace() + "." + id.getPath();
     }
 
     // 自定义四参数的回调接口
@@ -95,6 +139,8 @@ public class KubeJSUnitItemBuilder extends ItemBuilder {
         void apply(T t, U u, V v);
     }
 
+
+
     public enum UnitItemSlots {
         @Info("全部MEK物品")
         ALL,
@@ -103,25 +149,10 @@ public class KubeJSUnitItemBuilder extends ItemBuilder {
         @Info("MEK头盔")
         MEK_SUIT_HELMET,
         @Info("MEK胸甲")
-        MEK_SUIT_CHESTPLATE,
+        MEK_SUIT_BODY,
         @Info("MEK护腿")
         MEK_SUIT_PANTS,
         @Info("MEK靴子")
         MEK_SUIT_BOOTS
     }
-}
-
-
-class KubeJSUnitModule {
-    private KubeJSUnitModule(ResourceLocation id) {}
-
-    public static ModuleRegistryObject<KubeJSUnitItem> registerKjsUnit(
-            ResourceLocation id, IItemProvider itemProvider,
-            UnaryOperator<ModuleData.ModuleDataBuilder<KubeJSUnitItem>> builderModifier,
-            KubeJSUnitItemBuilder builder
-    ) {
-        ModuleDeferredRegister MODULES = new ModuleDeferredRegister(id.getNamespace());
-        return MODULES.register(id.getPath(), () -> new KubeJSUnitItem(builder),
-                itemProvider, builderModifier);
-    };
 }
