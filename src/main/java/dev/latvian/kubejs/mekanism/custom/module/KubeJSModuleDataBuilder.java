@@ -41,41 +41,7 @@ import java.util.function.*;
 
 public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModuleData, ModuleData.ModuleDataBuilder<KubeJSModuleData>, KubeJSModuleDataBuilder>{
 
-    public BiFunction<IModule<KubeJSModuleData>, ModuleConfigItemCreator, Void> initCallback;
-    public TriConsumer<IModule<KubeJSModuleData>, Player, Consumer<IHUDElement>> addHUDElementsCallback;
-    public BiFunction<IModule<KubeJSModuleData>, Player, Void> tickServerCallback;
-    public BiFunction<IModule<KubeJSModuleData>, Player, Void> tickClientCallback;
-    public TriConsumer<IModule<KubeJSModuleData>, Player, Consumer<Component>> addHUDStringsCallback;
-
-    public Function<IModule<KubeJSModuleData>, Boolean> canChangeModeWhenDisabledCallback;
-
-    public Function<IModule<KubeJSModuleData>, Boolean> canChangeRadialModeWhenDisabledCallback;
-
-    public BiFunction<IModule<KubeJSModuleData>, ItemStack, Component> getModeScrollComponentCallback;
-
-    public KQuintConsumer<IModule<KubeJSModuleData>, Player, ItemStack, Integer, Boolean, Void> changeModeCallback;
-
-    public KTriConsumer<IModule<KubeJSModuleData>, ItemStack, Consumer<NestedRadialMode>, Void> addRadialModesCallback;
-
-    public KTriConsumer<IModule<KubeJSModuleData>, ItemStack, RadialData<?>, ?> getModeCallback;
-
-    public KQuintConsumer<IModule<KubeJSModuleData>, Player, ItemStack, RadialData<? extends IRadialMode>, ? extends IRadialMode, Boolean> setModeCallback;
-
-    public KQuadConsumer<IModule<KubeJSModuleData>, Player, LivingEntity, InteractionHand, InteractionResult> onInteractCallback;
-
-    public BiFunction<IModule<KubeJSModuleData>, BlockSource, ICustomModule.ModuleDispenseResult> onDispenseCallback;
-
-    public BiFunction<IModule<KubeJSModuleData>, Boolean, Void> onAddedCallback;
-
-    public BiFunction<IModule<KubeJSModuleData>, Boolean, Void> onRemovedCallback;
-
-    public Function<IModule<KubeJSModuleData>, Void> onEnabledStateChangeCallback;
-
-    public BiFunction<IModule<KubeJSModuleData>, DamageSource, ICustomModule.ModuleDamageAbsorbInfo> getDamageAbsorbInfoCallback;
-
-    public BiFunction<IModule<KubeJSModuleData>, UseOnContext, InteractionResult> onItemUseCallback;
-
-    public BiFunction<IModule<KubeJSModuleData>, ToolAction, Boolean> canPerformActionCallback;
+    public KubeJSModuleCallback moduleCallback;
 
     public int maxStackSize = 1;
     public Rarity rarity = Rarity.COMMON;
@@ -147,37 +113,20 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
     public KubeJSModuleDataBuilder(ResourceLocation i) {
         super(i);
+        this.moduleCallback = new KubeJSModuleCallback();
         allBuilder.add(this);
     }
 
     public KubeJSModuleDataBuilder(KubeJSUnitItemBuilder b) {
         super(b.id);
-        this.initCallback                            = b.initCallback;
-        this.addHUDElementsCallback                  = b.addHUDElementsCallback;
-        this.tickServerCallback                      = b.tickServerCallback;
-        this.tickClientCallback                      = b.tickClientCallback;
-        this.addHUDStringsCallback                   = b.addHUDStringsCallback;
-        this.canChangeModeWhenDisabledCallback       = b.canChangeModeWhenDisabledCallback;
-        this.canChangeRadialModeWhenDisabledCallback = b.canChangeRadialModeWhenDisabledCallback;
-        this.getModeScrollComponentCallback          = b.getModeScrollComponentCallback;
-        this.addRadialModesCallback                  = b.addRadialModesCallback;
-        this.getModeCallback                         = b.getModeCallback;
-        this.setModeCallback                         = b.setModeCallback;
-        this.onInteractCallback                      = b.onInteractCallback;
-        this.onDispenseCallback                      = b.onDispenseCallback;
-        this.onAddedCallback                         = b.onAddedCallback;
-        this.onRemovedCallback                       = b.onRemovedCallback;
-        this.onEnabledStateChangeCallback            = b.onEnabledStateChangeCallback;
-        this.getDamageAbsorbInfoCallback             = b.getDamageAbsorbInfoCallback;
-        this.onItemUseCallback                       = b.onItemUseCallback;
-        this.canPerformActionCallback                = b.canPerformActionCallback;
-        this.maxStackSize                            = b.maxModuleSize;
-        this.rarity                                  = b.rarity;
-        this.exclusive                               = b.exclusive;
-        this.handlesModeChange                       = b.handlesModeChange;
-        this.modeChangeDisabledByDefault             = b.modeChangeDisabledByDefault;
-        this.rendersHUD                              = b.rendersHUD;
-        this.slot                                    = b.slot;
+        this.moduleCallback              = b.moduleCallback;
+        this.maxStackSize                = b.maxModuleSize;
+        this.rarity                      = b.rarity;
+        this.exclusive                   = b.exclusive;
+        this.handlesModeChange           = b.handlesModeChange;
+        this.modeChangeDisabledByDefault = b.modeChangeDisabledByDefault;
+        this.rendersHUD                  = b.rendersHUD;
+        this.slot                        = b.slot;
         allBuilder.add(this);
     }
 
@@ -227,105 +176,105 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
 
     public KubeJSModuleDataBuilder init(BiFunction<IModule<KubeJSModuleData>, ModuleConfigItemCreator, Void> cBInit) {
-        this.initCallback = cBInit;
+        this.moduleCallback.initCallback = cBInit;
         return this;
     }
 
     public KubeJSModuleDataBuilder tickServer(BiFunction<IModule<KubeJSModuleData>, Player, Void> tickServerCallback) {
-        this.tickServerCallback = tickServerCallback;
+        this.moduleCallback.tickServerCallback = tickServerCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder tickClient(BiFunction<IModule<KubeJSModuleData>, Player, Void> tickClientCallback) {
-        this.tickClientCallback = tickClientCallback;
+        this.moduleCallback.tickClientCallback = tickClientCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder addHUDStrings(
             TriConsumer<IModule<KubeJSModuleData>, Player, Consumer<Component>> addHUDStringsCallback) {
-        this.addHUDStringsCallback = addHUDStringsCallback;
+        this.moduleCallback.addHUDStringsCallback = addHUDStringsCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder addHUDElements(
             TriConsumer<IModule<KubeJSModuleData>, Player, Consumer<IHUDElement>> addHUDElementsCallback) {
-        this.addHUDElementsCallback = addHUDElementsCallback;
+        this.moduleCallback.addHUDElementsCallback = addHUDElementsCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder changeMode(
             KQuintConsumer<IModule<KubeJSModuleData>, Player, ItemStack, Integer, Boolean, Void> changeModeCallback) {
-        this.changeModeCallback = changeModeCallback;
+        this.moduleCallback.changeModeCallback = changeModeCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder canChangeModeWhenDisabled(Function<IModule<KubeJSModuleData>, Boolean> canChangeModeWhenDisabledCallback) {
-        this.canChangeModeWhenDisabledCallback = canChangeModeWhenDisabledCallback;
+        this.moduleCallback.canChangeModeWhenDisabledCallback = canChangeModeWhenDisabledCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder canChangeRadialModeWhenDisabled(Function<IModule<KubeJSModuleData>, Boolean> canChangeRadialModeWhenDisabledCallback) {
-        this.canChangeRadialModeWhenDisabledCallback = canChangeRadialModeWhenDisabledCallback;
+        this.moduleCallback.canChangeRadialModeWhenDisabledCallback = canChangeRadialModeWhenDisabledCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder getModeScrollComponent(BiFunction<IModule<KubeJSModuleData>, ItemStack, Component> getModeScrollComponentCallback) {
-        this.getModeScrollComponentCallback = getModeScrollComponentCallback;
+        this.moduleCallback.getModeScrollComponentCallback = getModeScrollComponentCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder addRadialModes(KTriConsumer<IModule<KubeJSModuleData>, ItemStack, Consumer<NestedRadialMode>, Void> addRadialModesCallback) {
-        this.addRadialModesCallback = addRadialModesCallback;
+        this.moduleCallback.addRadialModesCallback = addRadialModesCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder getMode(KTriConsumer<IModule<KubeJSModuleData>, ItemStack, RadialData<? extends IRadialMode>, ? extends IRadialMode> getModeCallback) {
-        this.getModeCallback = getModeCallback;
+        this.moduleCallback.getModeCallback = getModeCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder setMode(KQuintConsumer<IModule<KubeJSModuleData>, Player, ItemStack, RadialData<? extends IRadialMode>, ? extends IRadialMode, Boolean> setModeCallback) {
-        this.setModeCallback = setModeCallback;
+        this.moduleCallback.setModeCallback = setModeCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder onInteract(KQuadConsumer<IModule<KubeJSModuleData>, Player, LivingEntity, InteractionHand, InteractionResult> onInteractCallback) {
-        this.onInteractCallback = onInteractCallback;
+        this.moduleCallback.onInteractCallback = onInteractCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder onDispense(BiFunction<IModule<KubeJSModuleData>, BlockSource, ICustomModule.ModuleDispenseResult> onDispenseCallback) {
-        this.onDispenseCallback = onDispenseCallback;
+        this.moduleCallback.onDispenseCallback = onDispenseCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder onAdded(BiFunction<IModule<KubeJSModuleData>, Boolean, Void> onAddedCallback) {
-        this.onAddedCallback = onAddedCallback;
+        this.moduleCallback.onAddedCallback = onAddedCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder onRemoved(BiFunction<IModule<KubeJSModuleData>, Boolean, Void> onRemovedCallback) {
-        this.onRemovedCallback = onRemovedCallback;
+        this.moduleCallback.onRemovedCallback = onRemovedCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder onEnabledStateChange(Function<IModule<KubeJSModuleData>, Void> onEnabledStateChangeCallback) {
-        this.onEnabledStateChangeCallback = onEnabledStateChangeCallback;
+        this.moduleCallback.onEnabledStateChangeCallback = onEnabledStateChangeCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder getDamageAbsorbInfo(BiFunction<IModule<KubeJSModuleData>, DamageSource, ICustomModule.ModuleDamageAbsorbInfo> getDamageAbsorbInfoCallback) {
-        this.getDamageAbsorbInfoCallback = getDamageAbsorbInfoCallback;
+        this.moduleCallback.getDamageAbsorbInfoCallback = getDamageAbsorbInfoCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder onItemUse(BiFunction<IModule<KubeJSModuleData>, UseOnContext, InteractionResult> onItemUseCallback) {
-        this.onItemUseCallback = onItemUseCallback;
+        this.moduleCallback.onItemUseCallback = onItemUseCallback;
         return this;
     }
 
     public KubeJSModuleDataBuilder canPerformAction(BiFunction<IModule<KubeJSModuleData>, ToolAction, Boolean> canPerformActionCallback) {
-        this.canPerformActionCallback = canPerformActionCallback;
+        this.moduleCallback.canPerformActionCallback = canPerformActionCallback;
         return this;
     }
 
@@ -334,8 +283,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
         return new KubeJSModuleData(builder()) {
             @Override
             public void init(@NotNull IModule<KubeJSModuleData> module, @NotNull ModuleConfigItemCreator configItemCreator) {
-                if (initCallback != null) {
-                    initCallback.apply(module, configItemCreator);
+                if (moduleCallback.initCallback != null) {
+                    moduleCallback.initCallback.apply(module, configItemCreator);
                 } else {
                     super.init(module, configItemCreator);
                 }
@@ -343,8 +292,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public void tickClient(@NotNull IModule<KubeJSModuleData> module, @NotNull Player player) {
-                if (tickClientCallback!= null) {
-                    tickClientCallback.apply(module, player);
+                if (moduleCallback.tickClientCallback!= null) {
+                    moduleCallback.tickClientCallback.apply(module, player);
                 } else {
                     super.tickClient(module, player);
                 }
@@ -352,8 +301,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public void tickServer(@NotNull IModule<KubeJSModuleData> module, @NotNull Player player) {
-                if (tickServerCallback != null) {
-                    tickServerCallback.apply(module, player);
+                if (moduleCallback.tickServerCallback != null) {
+                    moduleCallback.tickServerCallback.apply(module, player);
                 } else {
                     super.tickServer(module, player);
                 }
@@ -361,8 +310,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public void addHUDElements(@NotNull IModule<KubeJSModuleData> module, @NotNull Player player, @NotNull Consumer<IHUDElement> hudElementAdder) {
-                if (addHUDElementsCallback!= null) {
-                    addHUDElementsCallback.accept(module, player, hudElementAdder);
+                if (moduleCallback.addHUDElementsCallback!= null) {
+                    moduleCallback.addHUDElementsCallback.accept(module, player, hudElementAdder);
                 } else {
                     super.addHUDElements(module, player, hudElementAdder);
                 }
@@ -370,8 +319,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public void addHUDStrings(@NotNull IModule<KubeJSModuleData> module, @NotNull Player player, @NotNull Consumer<Component> hudStringAdder) {
-                if (addHUDStringsCallback!= null) {
-                    addHUDStringsCallback.accept(module, player, hudStringAdder);
+                if (moduleCallback.addHUDStringsCallback!= null) {
+                    moduleCallback.addHUDStringsCallback.accept(module, player, hudStringAdder);
                 } else {
                     super.addHUDStrings(module, player, hudStringAdder);
                 }
@@ -379,8 +328,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public boolean canChangeModeWhenDisabled(@NotNull IModule<KubeJSModuleData> module) {
-                if (canChangeModeWhenDisabledCallback != null) {
-                    return canChangeModeWhenDisabledCallback.apply(module);
+                if (moduleCallback.canChangeModeWhenDisabledCallback != null) {
+                    return moduleCallback.canChangeModeWhenDisabledCallback.apply(module);
                 } else {
                     return super.canChangeModeWhenDisabled(module);
                 }
@@ -388,8 +337,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public boolean canChangeRadialModeWhenDisabled(@NotNull IModule<KubeJSModuleData> module) {
-                if (canChangeRadialModeWhenDisabledCallback != null) {
-                    return canChangeRadialModeWhenDisabledCallback.apply(module);
+                if (moduleCallback.canChangeRadialModeWhenDisabledCallback != null) {
+                    return moduleCallback.canChangeRadialModeWhenDisabledCallback.apply(module);
                 } else {
                     return super.canChangeRadialModeWhenDisabled(module);
                 }
@@ -397,8 +346,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public Component getModeScrollComponent(@NotNull IModule<KubeJSModuleData> module, @NotNull ItemStack stack) {
-                if (getModeScrollComponentCallback != null) {
-                    return getModeScrollComponentCallback.apply(module, stack);
+                if (moduleCallback.getModeScrollComponentCallback != null) {
+                    return moduleCallback.getModeScrollComponentCallback.apply(module, stack);
                 } else {
                     return super.getModeScrollComponent(module, stack);
                 }
@@ -406,8 +355,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public void changeMode(@NotNull IModule<KubeJSModuleData> module, @NotNull Player player, @NotNull ItemStack stack, int shift, boolean displayChangeMessage) {
-                if (changeModeCallback != null) {
-                    changeModeCallback.apply(module, player, stack, shift, displayChangeMessage);
+                if (moduleCallback.changeModeCallback != null) {
+                    moduleCallback.changeModeCallback.apply(module, player, stack, shift, displayChangeMessage);
                 } else {
                     super.changeMode(module, player, stack, shift, displayChangeMessage);
                 }
@@ -417,8 +366,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public void addRadialModes(@NotNull IModule<KubeJSModuleData> module, @NotNull ItemStack stack, @NotNull Consumer<NestedRadialMode> radialModeAdder) {
-                if (addRadialModesCallback != null) {
-                    addRadialModesCallback.apply(module, stack, radialModeAdder);
+                if (moduleCallback.addRadialModesCallback != null) {
+                    moduleCallback.addRadialModesCallback.apply(module, stack, radialModeAdder);
                 } else {
                     super.addRadialModes(module, stack, radialModeAdder);
                 }
@@ -426,8 +375,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public <MODE extends IRadialMode> @Nullable MODE getMode(@NotNull IModule<KubeJSModuleData> module, @NotNull ItemStack stack, @NotNull RadialData<MODE> radialData) {
-                if (getModeCallback != null) {
-                    return (MODE) getModeCallback.apply(module, stack, radialData);
+                if (moduleCallback.getModeCallback != null) {
+                    return (MODE) moduleCallback.getModeCallback.apply(module, stack, radialData);
                 } else {
                     return super.getMode(module, stack, radialData);
                 }
@@ -435,8 +384,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public <MODE extends IRadialMode> boolean setMode(@NotNull IModule<KubeJSModuleData> module, @NotNull Player player, @NotNull ItemStack stack, @NotNull RadialData<MODE> radialData, @NotNull MODE mode) {
-                 KQuintConsumer<IModule<KubeJSModuleData>, Player, ItemStack, RadialData<MODE>, MODE, Boolean> u = (KQuintConsumer) setModeCallback;
-                if (setModeCallback != null) {
+                 KQuintConsumer<IModule<KubeJSModuleData>, Player, ItemStack, RadialData<MODE>, MODE, Boolean> u = (KQuintConsumer) moduleCallback.setModeCallback;
+                if (moduleCallback.setModeCallback != null) {
                     return u.apply(module, player, stack, radialData, mode);
                 } else {
                     return super.setMode(module, player, stack, radialData, mode);
@@ -445,8 +394,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public @NotNull InteractionResult onInteract(@NotNull IModule<KubeJSModuleData> module, @NotNull Player player, @NotNull LivingEntity target, @NotNull InteractionHand hand) {
-                if (onInteractCallback != null) {
-                    return onInteractCallback.apply(module, player, target, hand);
+                if (moduleCallback.onInteractCallback != null) {
+                    return moduleCallback.onInteractCallback.apply(module, player, target, hand);
                 } else {
                     return super.onInteract(module, player, target, hand);
                 }
@@ -454,8 +403,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public @NotNull ICustomModule.ModuleDispenseResult onDispense(@NotNull IModule<KubeJSModuleData> module, @NotNull BlockSource source) {
-                if (onDispenseCallback != null) {
-                    return onDispenseCallback.apply(module, source);
+                if (moduleCallback.onDispenseCallback != null) {
+                    return moduleCallback.onDispenseCallback.apply(module, source);
                 } else {
                     return super.onDispense(module, source);
                 }
@@ -463,8 +412,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public void onAdded(@NotNull IModule<KubeJSModuleData> module, boolean stackChange) {
-                if (onAddedCallback != null) {
-                    onAddedCallback.apply(module, stackChange);
+                if (moduleCallback.onAddedCallback != null) {
+                    moduleCallback.onAddedCallback.apply(module, stackChange);
                 } else {
                     super.onAdded(module, stackChange);
                 }
@@ -472,8 +421,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public void onRemoved(@NotNull IModule<KubeJSModuleData> module, boolean stackChange) {
-                if (onRemovedCallback != null) {
-                    onRemovedCallback.apply(module, stackChange);
+                if (moduleCallback.onRemovedCallback != null) {
+                    moduleCallback.onRemovedCallback.apply(module, stackChange);
                 } else {
                     super.onRemoved(module, stackChange);
                 }
@@ -481,8 +430,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public void onEnabledStateChange(@NotNull IModule<KubeJSModuleData> module) {
-                if (onEnabledStateChangeCallback != null) {
-                    onEnabledStateChangeCallback.apply(module);
+                if (moduleCallback.onEnabledStateChangeCallback != null) {
+                    moduleCallback.onEnabledStateChangeCallback.apply(module);
                 } else {
                     super.onEnabledStateChange(module);
                 }
@@ -490,8 +439,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public @NotNull ICustomModule.ModuleDamageAbsorbInfo getDamageAbsorbInfo(@NotNull IModule<KubeJSModuleData> module, @NotNull DamageSource source) {
-                if (getDamageAbsorbInfoCallback != null) {
-                    return getDamageAbsorbInfoCallback.apply(module, source);
+                if (moduleCallback.getDamageAbsorbInfoCallback != null) {
+                    return moduleCallback.getDamageAbsorbInfoCallback.apply(module, source);
                 } else {
                     return Objects.requireNonNull(super.getDamageAbsorbInfo(module, source));
                 }
@@ -499,8 +448,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public @NotNull InteractionResult onItemUse(@NotNull IModule<KubeJSModuleData> module, @NotNull UseOnContext context) {
-                if (onItemUseCallback != null) {
-                    return onItemUseCallback.apply(module, context);
+                if (moduleCallback.onItemUseCallback != null) {
+                    return moduleCallback.onItemUseCallback.apply(module, context);
                 } else {
                     return super.onItemUse(module, context);
                 }
@@ -508,8 +457,8 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public boolean canPerformAction(@NotNull IModule<KubeJSModuleData> module, @NotNull ToolAction action) {
-                if (canPerformActionCallback != null) {
-                    return canPerformActionCallback.apply(module, action);
+                if (moduleCallback.canPerformActionCallback != null) {
+                    return moduleCallback.canPerformActionCallback.apply(module, action);
                 } else {
                     return super.canPerformAction(module, action);
                 }
