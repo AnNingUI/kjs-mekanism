@@ -8,6 +8,7 @@ import dev.latvian.kubejs.mekanism.custom.enums.UnitItemSlots;
 import dev.latvian.kubejs.mekanism.custom.item.KubeJSUnitItemBuilder;
 import dev.latvian.kubejs.mekanism.recipe.*;
 import dev.latvian.kubejs.mekanism.util.ChemicalWrapper;
+import dev.latvian.kubejs.mekanism.util.KubeJSModuleUtils;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.recipe.schema.RegisterRecipeSchemasEvent;
 import dev.latvian.mods.kubejs.registry.RegistryInfo;
@@ -84,6 +85,7 @@ public class MekanismKubeJSPlugin extends KubeJSPlugin {
 	public void registerBindings(BindingsEvent event) {
 		event.add("MekUnitItemSlots", UnitItemSlots.Slots.class);
 		event.add("ExclusiveFlag", ModuleData.ExclusiveFlag.class);
+		event.add("KJSModuleUtils", KubeJSModuleUtils.class);
 	}
 
 
