@@ -352,7 +352,7 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
 
             @Override
             public void tickServer(@NotNull IModule<KubeJSModuleData> module, @NotNull Player player) {
-                if (tickServerCallback!= null) {
+                if (tickServerCallback != null) {
                     tickServerCallback.apply(module, player);
                 } else {
                     super.tickServer(module, player);

@@ -35,16 +35,11 @@ import java.util.function.Function;
 public class KubeJSUnitItemBuilder extends ItemBuilder {
     public UnitItemSlots.Slots slot;
 
-    public BiFunction<IModule<KubeJSModuleData>, ModuleConfigItemCreator, Void> initCallback = (module,
-                                                                                                    configItemCreator) -> null;
-    public TriConsumer<IModule<KubeJSModuleData>, Player, Consumer<IHUDElement>> addHUDElementsCallback = (
-            module, player, hudElementAdder) -> {
-    };
-    public BiFunction<IModule<KubeJSModuleData>, Player, Void> tickServerCallback = (module, player) -> null;
-    public BiFunction<IModule<KubeJSModuleData>, Player, Void> tickClientCallback = (module, player) -> null;
-    public TriConsumer<IModule<KubeJSModuleData>, Player, Consumer<Component>> addHUDStringsCallback = (
-            module, player, hudStringAdder) -> {
-    };
+    public BiFunction<IModule<KubeJSModuleData>, ModuleConfigItemCreator, Void> initCallback;
+    public TriConsumer<IModule<KubeJSModuleData>, Player, Consumer<IHUDElement>> addHUDElementsCallback;
+    public BiFunction<IModule<KubeJSModuleData>, Player, Void> tickServerCallback;
+    public BiFunction<IModule<KubeJSModuleData>, Player, Void> tickClientCallback;
+    public TriConsumer<IModule<KubeJSModuleData>, Player, Consumer<Component>> addHUDStringsCallback;
 
     public Function<IModule<KubeJSModuleData>, Boolean> canChangeModeWhenDisabledCallback;
 
