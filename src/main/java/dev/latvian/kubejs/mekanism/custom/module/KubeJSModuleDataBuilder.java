@@ -214,7 +214,7 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
             }
             return bb;
         };
-        NonNullSupplier<KubeJSModuleData> s = () -> new KubeJSModuleData(builder());
+        NonNullSupplier<KubeJSModuleData> s = this::createObject;
         IItemProvider i = () -> Objects.requireNonNull(ForgeRegistries.ITEMS.getValue(id)).asItem();
         var e = ModuleData.ModuleDataBuilder.custom(s, i);
         return () -> a.apply(e);
