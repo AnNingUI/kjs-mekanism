@@ -442,7 +442,7 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
                 if (moduleCallback.getDamageAbsorbInfoCallback != null) {
                     return moduleCallback.getDamageAbsorbInfoCallback.apply(module, source);
                 } else {
-                    return Objects.requireNonNull(super.getDamageAbsorbInfo(module, source));
+                    return super.getDamageAbsorbInfo(module, source);
                 }
             }
 
