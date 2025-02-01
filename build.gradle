@@ -28,6 +28,10 @@ loom {
             vmArgs("-XX:+IgnoreUnrecognizedVMOptions", "-XX:+AllowEnhancedClassRedefinition")
         }
     }
+    forge {
+        mixinConfig "kjs-mek.mixin.json"
+    }
+
 }
 
 repositories {
@@ -69,6 +73,7 @@ dependencies {
 
     implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:${project.mixinExtras_version}"))
     implementation(include("io.github.llamalad7:mixinextras-forge:${project.mixinExtras_version}"))
+
 
     //probejs
     modRuntimeOnly "curse.maven:probejs-585406:${probejs_file}"
