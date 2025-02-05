@@ -7,6 +7,7 @@ import dev.latvian.kubejs.mekanism.custom.module.KubeJSModuleCallback;
 import dev.latvian.kubejs.mekanism.custom.module.KubeJSModuleData;
 import dev.latvian.kubejs.mekanism.custom.module.KubeJSModuleDataBuilder;
 import dev.latvian.mods.kubejs.item.ItemBuilder;
+import dev.latvian.mods.kubejs.typings.Info;
 import mekanism.api.functions.TriConsumer;
 import mekanism.api.gear.ICustomModule;
 import mekanism.api.gear.IHUDElement;
@@ -29,9 +30,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraftforge.common.ToolAction;
 
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import static dev.latvian.kubejs.mekanism.util.KubeJSMekUntiItemUtils.getModuleById;
 
 public class KubeJSUnitItemBuilder extends ItemBuilder {
     public UnitItemSlots.Slots slot;
@@ -209,8 +213,13 @@ public class KubeJSUnitItemBuilder extends ItemBuilder {
         return moduleData;
     }
 
-    public void setModuleData(IModuleDataProvider<?> moduleData) {
-        this.moduleData = moduleData;
+    @Info("""
+            This method is used to set a ModuleData that already exists,
+            or a ModuleData that you have registered separately,
+            and will not be able to set other properties.
+            """)
+    public void setModuleData(ResourceLocation id) {
+        this.moduleData = Objects.requireNonNull(getModuleById(id)).getModuleData();
     }
 
 
