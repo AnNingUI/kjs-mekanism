@@ -1,19 +1,19 @@
-package dev.latvian.kubejs.mekanism.custom;
+package dev.latvian.kubejs.mekanism.util;
 
-public class CustomInterface {
+public class KJSInterfaceAddon {
     @FunctionalInterface
     public interface KQuadConsumer<T, U, V, W, R> {
         R apply(T t, U u, V v, W w);
     }
 
-    // 自定义五个参数的回调接口
+    // Custom callback interface for five parameters
     @FunctionalInterface
     public interface KQuintConsumer<T, U, V, W, X, R> {
         R apply(T t, U u, V v, W w, X x);
 
     }
 
-    // 自定义三个参数的回调接口
+    // Custom callback interface for three parameters
     @FunctionalInterface
     public interface KTriConsumer<T, U, V, R> {
         R apply(T t, U u, V v);

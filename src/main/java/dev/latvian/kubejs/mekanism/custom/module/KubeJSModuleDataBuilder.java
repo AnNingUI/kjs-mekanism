@@ -1,11 +1,12 @@
 package dev.latvian.kubejs.mekanism.custom.module;
 
 import dev.latvian.kubejs.mekanism.MekanismKubeJSPlugin;
-import dev.latvian.kubejs.mekanism.custom.CustomInterface.KQuadConsumer;
-import dev.latvian.kubejs.mekanism.custom.CustomInterface.KQuintConsumer;
-import dev.latvian.kubejs.mekanism.custom.CustomInterface.KTriConsumer;
-import dev.latvian.kubejs.mekanism.custom.enums.UnitItemSlots;
+import dev.latvian.kubejs.mekanism.util.KJSInterfaceAddon.KQuadConsumer;
+import dev.latvian.kubejs.mekanism.util.KJSInterfaceAddon.KQuintConsumer;
+import dev.latvian.kubejs.mekanism.util.KJSInterfaceAddon.KTriConsumer;
+import dev.latvian.kubejs.mekanism.util.UnitItemSlots;
 import dev.latvian.kubejs.mekanism.custom.item.KubeJSUnitItemBuilder;
+import dev.latvian.mods.kubejs.registry.BuilderBase;
 import dev.latvian.mods.kubejs.registry.RegistryInfo;
 import mekanism.api.functions.TriConsumer;
 import mekanism.api.gear.ICustomModule;
@@ -33,6 +34,7 @@ import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import oshi.util.Memoizer;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -464,5 +466,29 @@ public class KubeJSModuleDataBuilder extends AKubeJSModuleDataBuilder<KubeJSModu
                 }
             }
         };
+    }
+}
+
+
+abstract class AKubeJSModuleDataBuilder<C extends ModuleData<C> & ICustomModule<C>,
+        B extends ModuleData.ModuleDataBuilder<C>,
+        S extends AKubeJSModuleDataBuilder<C, B, S>> extends BuilderBase<C> {
+    protected AKubeJSModuleDataBuilder(ResourceLocation i) {
+        super(i);
+        builder = Memoizer.memoize(bindBuilder());
+    }
+
+    private final Supplier<B> builder;
+
+    protected abstract Supplier<B> bindBuilder();
+    protected final B builder() {
+        return builder.get();
+    }
+
+
+
+    @SuppressWarnings("unchecked")
+    protected S self() {
+        return (S) this;
     }
 }

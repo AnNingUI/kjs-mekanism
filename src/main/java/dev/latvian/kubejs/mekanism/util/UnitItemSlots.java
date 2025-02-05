@@ -1,20 +1,20 @@
-package dev.latvian.kubejs.mekanism.custom.enums;
+package dev.latvian.kubejs.mekanism.util;
 
 import dev.latvian.mods.kubejs.typings.Info;
 
 public class UnitItemSlots {
     public enum Slots {
-        @Info("全部MEK物品")
+        @Info("All MEK items")
         ALL,
-        @Info("MEK工具")
+        @Info("MEK tools")
         MEK_TOOL,
-        @Info("MEK头盔")
+        @Info("MEK helmet")
         MEK_SUIT_HELMET,
-        @Info("MEK胸甲")
+        @Info("MEK chestplate")
         MEK_SUIT_BODY,
-        @Info("MEK护腿")
+        @Info("MEK leggings")
         MEK_SUIT_PANTS,
-        @Info("MEK靴子")
+        @Info("MEK boots")
         MEK_SUIT_BOOTS
     }
 }

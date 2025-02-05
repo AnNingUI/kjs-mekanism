@@ -1,8 +1,8 @@
 package dev.latvian.kubejs.mekanism.custom.item;
 
 import dev.latvian.kubejs.mekanism.MekanismKubeJSPlugin;
-import dev.latvian.kubejs.mekanism.custom.CustomInterface;
-import dev.latvian.kubejs.mekanism.custom.enums.UnitItemSlots;
+import dev.latvian.kubejs.mekanism.util.KJSInterfaceAddon;
+import dev.latvian.kubejs.mekanism.util.UnitItemSlots;
 import dev.latvian.kubejs.mekanism.custom.module.KubeJSModuleCallback;
 import dev.latvian.kubejs.mekanism.custom.module.KubeJSModuleData;
 import dev.latvian.kubejs.mekanism.custom.module.KubeJSModuleDataBuilder;
@@ -96,7 +96,7 @@ public class KubeJSUnitItemBuilder extends ItemBuilder {
     }
 
     public KubeJSUnitItemBuilder changeMode(
-            CustomInterface.KQuintConsumer<IModule<KubeJSModuleData>, Player, ItemStack, Integer, Boolean, Void> changeModeCallback) {
+            KJSInterfaceAddon.KQuintConsumer<IModule<KubeJSModuleData>, Player, ItemStack, Integer, Boolean, Void> changeModeCallback) {
         this.moduleCallback.changeModeCallback = changeModeCallback;
         return this;
     }
@@ -116,22 +116,22 @@ public class KubeJSUnitItemBuilder extends ItemBuilder {
         return this;
     }
 
-    public KubeJSUnitItemBuilder addRadialModes(CustomInterface.KTriConsumer<IModule<KubeJSModuleData>, ItemStack, Consumer<NestedRadialMode>, Void> addRadialModesCallback) {
+    public KubeJSUnitItemBuilder addRadialModes(KJSInterfaceAddon.KTriConsumer<IModule<KubeJSModuleData>, ItemStack, Consumer<NestedRadialMode>, Void> addRadialModesCallback) {
         this.moduleCallback.addRadialModesCallback = addRadialModesCallback;
         return this;
     }
 
-    public KubeJSUnitItemBuilder getMode(CustomInterface.KTriConsumer<IModule<KubeJSModuleData>, ItemStack, RadialData<? extends IRadialMode>, ? extends IRadialMode> getModeCallback) {
+    public KubeJSUnitItemBuilder getMode(KJSInterfaceAddon.KTriConsumer<IModule<KubeJSModuleData>, ItemStack, RadialData<? extends IRadialMode>, ? extends IRadialMode> getModeCallback) {
         this.moduleCallback.getModeCallback = getModeCallback;
         return this;
     }
 
-    public KubeJSUnitItemBuilder setMode(CustomInterface.KQuintConsumer<IModule<KubeJSModuleData>, Player, ItemStack, RadialData<? extends IRadialMode>, ? extends IRadialMode, Boolean> setModeCallback) {
+    public KubeJSUnitItemBuilder setMode(KJSInterfaceAddon.KQuintConsumer<IModule<KubeJSModuleData>, Player, ItemStack, RadialData<? extends IRadialMode>, ? extends IRadialMode, Boolean> setModeCallback) {
         this.moduleCallback.setModeCallback = setModeCallback;
         return this;
     }
 
-    public KubeJSUnitItemBuilder onInteract(CustomInterface.KQuadConsumer<IModule<KubeJSModuleData>, Player, LivingEntity, InteractionHand, InteractionResult> onInteractCallback) {
+    public KubeJSUnitItemBuilder onInteract(KJSInterfaceAddon.KQuadConsumer<IModule<KubeJSModuleData>, Player, LivingEntity, InteractionHand, InteractionResult> onInteractCallback) {
         this.moduleCallback.onInteractCallback = onInteractCallback;
         return this;
     }

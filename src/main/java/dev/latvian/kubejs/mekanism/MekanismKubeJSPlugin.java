@@ -4,7 +4,7 @@ import dev.latvian.kubejs.mekanism.custom.chemical.KubeJSGasBuilder;
 import dev.latvian.kubejs.mekanism.custom.chemical.KubeJSInfuseTypeBuilder;
 import dev.latvian.kubejs.mekanism.custom.chemical.KubeJSPigmentBuilder;
 import dev.latvian.kubejs.mekanism.custom.chemical.KubeJSSlurryBuilder;
-import dev.latvian.kubejs.mekanism.custom.enums.UnitItemSlots;
+import dev.latvian.kubejs.mekanism.util.UnitItemSlots;
 import dev.latvian.kubejs.mekanism.custom.item.KubeJSUnitItemBuilder;
 import dev.latvian.kubejs.mekanism.recipe.*;
 import dev.latvian.kubejs.mekanism.util.ChemicalWrapper;
@@ -16,6 +16,7 @@ import dev.latvian.mods.kubejs.script.BindingsEvent;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.rhino.util.wrap.TypeWrappers;
 import mekanism.api.MekanismAPI;
+import mekanism.api.gear.ICustomModule;
 import mekanism.api.gear.ModuleData;
 import mekanism.api.recipes.ingredients.ChemicalStackIngredient;
 
@@ -86,7 +87,6 @@ public class MekanismKubeJSPlugin extends KubeJSPlugin {
 		event.add("MekUnitItemSlots", UnitItemSlots.Slots.class);
 		event.add("ExclusiveFlag", ModuleData.ExclusiveFlag.class);
 		event.add("KJSModuleUtils", KubeJSModuleUtils.class);
+		event.add("ModuleDamageAbsorbInfo", ICustomModule.ModuleDamageAbsorbInfo.class);
 	}
-
-
 }
